@@ -1,0 +1,31 @@
+{
+  "bot_commands": {
+    "start": "Запустить бота",
+    "config": "Показать конфигурацию бота",
+    "time": "Указать время",
+    "city": "Указать город",
+    "weather": "Узнать погоду",
+    "type": "Задать тип прогноза"
+  },
+  "keyboard": {
+    "time": {
+      "1day": "1 день",
+      "3day": "3 дня",
+      "10day": "10 дней"
+    }
+  },
+  "bot_messages": {
+    "specify_time": "Укажите время",
+    "specify_time_done": "Время установлено",
+    "specify_city": "Введите название вашего города:",
+    "specify_city_another": "Пожалуйста, укажите другое название вашего города",
+    "specify_city_select": "Выберите город",
+    "specify_city_done": "Город установлен",
+    "specify_set_type": "Укажите тип:",
+    "specify_set_type_done": "Тип установлен",
+    "preparing_forecast": "Подготавливаю прогноз...",
+    "specify_need_config": "Для получения погоды сначала нужно сконфигурировать бота!",
+    "forecast_for": "Прогноз погоды для",
+    "error_receiving_data": "Ошибка при получении данных."
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "bot_commands": {
+    "start": "Start the bot",
+    "config": "Show bot configuration",
+    "time": "Specify time",
+    "city": "Specify city",
+    "weather": "Check weather",
+    "type": "Set forecast type"
+  },
+  "keyboard": {
+    "time": {
+      "1day": "1 day",
+      "3day": "3 days",
+      "10day": "10 days"
+    }
+  },
+  "bot_messages": {
+    "specify_time": "Specify time",
+    "specify_time_done": "Time set",
+    "specify_city": "Enter your city name:",
+    "specify_city_another": "Please provide another name for your city",
+    "specify_city_select": "Select city",
+    "specify_city_done": "City set",
+    "specify_set_type": "Specify type:",
+    "specify_set_type_done": "Type set",
+    "preparing_forecast": "Preparing forecast...",
+    "specify_need_config": "To get weather, you need to configure the bot first!",
+    "forecast_for": "Weather forecast for",
+    "error_receiving_data": "An error occurred while receiving data."
+  }
+}

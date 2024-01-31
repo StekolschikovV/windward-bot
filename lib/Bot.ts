@@ -1,20 +1,27 @@
 import TelegramBot, {Message} from 'node-telegram-bot-api';
 import cron from 'node-cron'
 import dotenv from 'dotenv';
+import {i18n} from "./config"
 
 import cityFinder from "./CityFinder";
 import screenshot from "./Screenshot";
 import dbManager from "./DatabaseManager";
+
 import {ELastMessage, IChatConfig, ICityData} from "./interface";
+import {startTextEn} from "./startText";
 
 dotenv.config();
 
 class Bot {
 
-    bot: TelegramBot;
+    bot!: TelegramBot;
     timeVariationLine = ["7:00", "8:00", "9:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"]
     API_KEY_BOT = ""
-    typeVariants = ["Прогноз на один денть", "Прогноз на три дня", "Прогноз на десять деней"]
+    typeVariants = [
+        i18n.__({phrase: 'keyboard.time.1day', locale: "en"}),
+        i18n.__({phrase: 'keyboard.time.3day', locale: "en"}),
+        i18n.__({phrase: 'keyboard.time.10day', locale: "en"}),
+    ]
     cronTask: cron.ScheduledTask[] = []
     botName = ""
 
@@ -58,27 +65,27 @@ class Bot {
         const commands = [
             {
                 command: ELastMessage.start,
-                description: "Запуск бота"
+                description: i18n.__('bot_commands.start')
             },
             {
                 command: ELastMessage.config,
-                description: "Показать конфигурацию бота"
+                description: i18n.__('bot_commands.config')
             },
             {
                 command: ELastMessage.time,
-                description: "Указать время"
+                description: i18n.__('bot_commands.time')
             },
             {
                 command: ELastMessage.city,
-                description: "Указать город"
+                description: i18n.__('bot_commands.city')
             },
             {
                 command: ELastMessage.weather,
-                description: "Узнать погоду"
+                description: i18n.__('bot_commands.weather')
             },
             {
                 command: ELastMessage.type,
-                description: "Задать тип прогноза"
+                description: i18n.__('bot_commands.type')
             }
         ]
         this.bot.setMyCommands(commands);
@@ -96,7 +103,7 @@ class Bot {
     private crone = () => {
         this.cronTask.forEach(task => task.stop());
         this.timeVariationLine.forEach(tv => {
-            const cronPattern = `0 ${tv.split(":")[1]} ${tv.split(":")[0]} * * *`; // Запускаем каждый день в выбранное время
+            const cronPattern = `0 ${tv.split(":")[1]} ${tv.split(":")[0]} * * *`;
             const task = cron.schedule(cronPattern, () => {
                 this.chatConfig.forEach(chatConfig => {
                     if (chatConfig.time === tv) {
@@ -150,13 +157,15 @@ class Bot {
                     cityId: null
                 }
                 chatConfig = newConfig
-                console.log(this.chatConfig)
                 this.chatConfig.push(newConfig)
             }
 
             // start
             if (this.isMessageCommand(msg, ELastMessage.start)) {
-                await this.bot.sendMessage(msg.chat.id, `Вы запустили бота!`);
+                await this.bot.sendMessage(msg.chat.id, startTextEn, {
+                    parse_mode: 'Markdown',
+                    disable_web_page_preview: true
+                });
             }
 
             // config
@@ -167,7 +176,7 @@ class Bot {
             // timedone
             if (this.isMessageCommand(msg, ELastMessage.time)) {
                 this.setLastMessage(msg, ELastMessage.timedone)
-                await this.bot.sendMessage(msg.chat.id, `Укажите время когда отправлять погоду`, this.getTimeKeyboard())
+                await this.bot.sendMessage(msg.chat.id, i18n.__('bot_messages.specify_time'), this.getTimeKeyboard())
             }
 
             // timedone
@@ -176,7 +185,11 @@ class Bot {
             ) {
                 this.setLastMessage(msg, ELastMessage.null)
                 this.setTime(msg, text)
-                await this.bot.sendMessage(msg.chat.id, "Время установлено");
+                await this.bot.sendMessage(msg.chat.id, i18n.__({
+                        phrase: 'bot_messages.specify_time_done',
+                        locale: "en"
+                    }),
+                );
             }
 
             // ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### CITY CONFIG
@@ -184,7 +197,10 @@ class Bot {
             // city
             if (chatConfig && this.isMessageCommand(msg, ELastMessage.city)) {
                 if (text && text.length > 3) {
-                    await this.bot.sendMessage(msg.chat.id, "Напиши название своего города")
+                    await this.bot.sendMessage(msg.chat.id, i18n.__({
+                        phrase: 'bot_messages.specify_city',
+                        locale: "en"
+                    }))
                     this.setLastMessage(msg, ELastMessage.null)
 
                     setTimeout(() => {
@@ -211,10 +227,16 @@ class Bot {
                     const citiesNames: string[] = cities.map(c =>
                         this.getFullCityName(c.translations?.ru?.country?.name, c.translations?.ru?.district?.name, c.translations?.ru?.city?.name))
                     const citiesKeys = this.getCitiesKeyboard(citiesNames)
-                    await this.bot.sendMessage(msg.chat.id, `Выберите город`, citiesKeys)
+                    await this.bot.sendMessage(msg.chat.id, i18n.__({
+                        phrase: 'bot_messages.specify_city_select',
+                        locale: "en"
+                    }), citiesKeys)
                     this.setLastMessage(msg, ELastMessage.citydonedone)
                 } else {
-                    await this.bot.sendMessage(msg.chat.id, "Проверьте другое название своего города");
+                    await this.bot.sendMessage(msg.chat.id, i18n.__({
+                        phrase: 'bot_messages.specify_city_another',
+                        locale: "en"
+                    }));
                 }
             }
 
@@ -234,20 +256,29 @@ class Bot {
                     this.setLastMessage(msg, ELastMessage.null)
                     this.setCitiesData(msg, [])
                     this.setCitiesId(msg, (targetCitiData as ICityData).id)
-                    await this.bot.sendMessage(msg.chat.id, `Город задан`)
+                    await this.bot.sendMessage(msg.chat.id, i18n.__({
+                        phrase: 'bot_messages.specify_city_done',
+                        locale: "en"
+                    }))
                 }
             }
             // ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
             // type
             if (chatConfig && this.isMessageCommand(msg, ELastMessage.type)) {
-                await this.bot.sendMessage(msg.chat.id, `Укажите тип:`, this.getTypeKeyboard())
+                await this.bot.sendMessage(msg.chat.id, i18n.__({
+                    phrase: 'bot_messages.specify_set_type',
+                    locale: "en"
+                }), this.getTypeKeyboard())
                 this.setLastMessage(msg, ELastMessage.typedone)
             }
 
             // typedone
             if (chatConfig && text && chatConfig?.lastMessage === ELastMessage.typedone && this.typeVariants.includes(text)) {
-                await this.bot.sendMessage(msg.chat.id, `Типа задан`)
+                await this.bot.sendMessage(msg.chat.id, i18n.__({
+                    phrase: 'bot_messages.specify_set_type_done',
+                    locale: "en"
+                }))
                 let type: 1 | 3 | 10 = 1
                 if (text === this.typeVariants[0]) type = 1
                 else if (text === this.typeVariants[1]) type = 3
@@ -259,10 +290,16 @@ class Bot {
             // weather
             if (chatConfig && this.isMessageCommand(msg, ELastMessage.weather)) {
                 if (this.isBotConfigured(msg)) {
-                    await this.bot.sendMessage(msg.chat.id, `Подготавливаю прогноз...`)
+                    await this.bot.sendMessage(msg.chat.id, i18n.__({
+                        phrase: 'bot_messages.preparing_forecast',
+                        locale: "en"
+                    }))
                     this.sendWeather(chatConfig)
                 } else {
-                    await this.bot.sendMessage(msg.chat.id, `Чтобы получать погоду, сначала нужно сконфигурировать бот!`)
+                    await this.bot.sendMessage(msg.chat.id, i18n.__({
+                        phrase: 'bot_messages.specify_need_config',
+                        locale: "en"
+                    }))
                 }
             }
         })
@@ -276,22 +313,34 @@ class Bot {
         let isError = false
         if (chatConfig.type === 1) {
             if (await screenshot.takeScreenshotFor1Day(`${chatConfig.city}`, chatConfig.cityId || 0)) {
-                await this.bot.sendMessage(chatConfig.chatId, `Прогноз погоды для ${chatConfig?.cityData?.name}:`)
+                await this.bot.sendMessage(chatConfig.chatId, `${i18n.__({
+                    phrase: 'bot_messages.forecast_for',
+                    locale: "en"
+                })} ${chatConfig?.cityData?.name}:`)
                 await this.bot.sendPhoto(chatConfig.chatId, `./screenshots/1-${chatConfig.cityId}.png`);
             } else isError = true
         } else if (chatConfig.type === 3) {
             if (await screenshot.takeScreenshotFor3Days(`${chatConfig.city}`, chatConfig.cityId || 0)) {
-                await this.bot.sendMessage(chatConfig.chatId, `Прогноз погоды для ${chatConfig?.cityData?.name}:`)
+                await this.bot.sendMessage(chatConfig.chatId, `${i18n.__({
+                    phrase: 'bot_messages.forecast_for',
+                    locale: "en"
+                })} ${chatConfig?.cityData?.name}:`)
                 await this.bot.sendPhoto(chatConfig.chatId, `./screenshots/3-${chatConfig.cityId}.png`);
             } else isError = true
         } else {
             if (await screenshot.takeScreenshotFor10Days(`${chatConfig.city}`, chatConfig.cityId || 0)) {
-                await this.bot.sendMessage(chatConfig.chatId, `Прогноз погоды для ${chatConfig?.cityData?.name}:`)
+                await this.bot.sendMessage(chatConfig.chatId, `${i18n.__({
+                    phrase: 'bot_messages.forecast_for',
+                    locale: "en"
+                })} ${chatConfig?.cityData?.name}:`)
                 await this.bot.sendPhoto(chatConfig.chatId, `./screenshots/10-${chatConfig.cityId}.png`);
             } else isError = true
         }
         if (isError) {
-            await this.bot.sendMessage(chatConfig.chatId, `Возникла ошибка при получении данных.`)
+            await this.bot.sendMessage(chatConfig.chatId, i18n.__({
+                phrase: 'bot_messages.error_receiving_data',
+                locale: "en"
+            }))
         }
     }
 

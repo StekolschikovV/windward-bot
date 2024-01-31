@@ -1,0 +1,31 @@
+{
+  "bot_commands": {
+    "start": "Iniciar el bot",
+    "config": "Mostrar configuración del bot",
+    "time": "Especificar tiempo",
+    "city": "Especificar ciudad",
+    "weather": "Consultar el tiempo",
+    "type": "Establecer tipo de pronóstico"
+  },
+  "keyboard": {
+    "time": {
+      "1day": "1 día",
+      "3day": "3 días",
+      "10day": "10 días"
+    }
+  },
+  "bot_messages": {
+    "specify_time": "Especificar tiempo",
+    "specify_time_done": "Tiempo establecido",
+    "specify_city": "Ingrese el nombre de su ciudad:",
+    "specify_city_another": "Proporcione otro nombre para su ciudad",
+    "specify_city_select": "Seleccionar ciudad",
+    "specify_city_done": "Ciudad establecida",
+    "specify_set_type": "Especificar tipo:",
+    "specify_set_type_done": "Tipo establecido",
+    "preparing_forecast": "Preparando pronóstico...",
+    "specify_need_config": "¡Para obtener el tiempo, primero debe configurar el bot!",
+    "forecast_for": "Pronóstico del tiempo para",
+    "error_receiving_data": "Se produjo un error al recibir los datos."
+  }
+}
