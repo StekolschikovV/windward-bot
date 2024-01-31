@@ -1,5 +1,5 @@
 /.idea/
 /screenshots/*
 /node_modules/
-/.env/
+.env
 /db.sqlite
