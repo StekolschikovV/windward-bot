@@ -1,0 +1,5 @@
+/.idea/
+/screenshots/*
+/node_modules/
+/.env/
+/db.sqlite

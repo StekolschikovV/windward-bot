@@ -1,0 +1,25 @@
+{
+  "name": "weather-forecast-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node-telegram-bot-api": "^0.64.2",
+    "axios": "^1.6.5",
+    "dotenv": "^16.4.1",
+    "node-cron": "^3.0.3",
+    "node-telegram-bot-api": "^0.64.0",
+    "puppeteer": "^21.7.0",
+    "puppeteer-core": "^21.7.0",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@types/node-cron": "^3.0.11"
+  }
+}
