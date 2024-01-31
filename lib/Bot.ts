@@ -8,7 +8,7 @@ import screenshot from "./Screenshot";
 import dbManager from "./DatabaseManager";
 
 import {ELastMessage, IChatConfig, ICityData} from "./interface";
-import {startTextEn} from "./startText";
+import {startTexEs, startTexRu, startTextEn, startTexUk, startTexZh} from "./startText";
 
 dotenv.config();
 
@@ -17,13 +17,10 @@ class Bot {
     bot!: TelegramBot;
     timeVariationLine = ["7:00", "8:00", "9:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"]
     API_KEY_BOT = ""
-    typeVariants = [
-        i18n.__({phrase: 'keyboard.time.1day', locale: "en"}),
-        i18n.__({phrase: 'keyboard.time.3day', locale: "en"}),
-        i18n.__({phrase: 'keyboard.time.10day', locale: "en"}),
-    ]
+
     cronTask: cron.ScheduledTask[] = []
     botName = ""
+    langFullNames = ["English", "Chinese", "Ukrainian", "Russian", "Spanish"]
 
     constructor() {
         this.loadEnv()
@@ -68,8 +65,8 @@ class Bot {
                 description: i18n.__('bot_commands.start')
             },
             {
-                command: ELastMessage.config,
-                description: i18n.__('bot_commands.config')
+                command: ELastMessage.lang,
+                description: i18n.__('bot_commands.lang')
             },
             {
                 command: ELastMessage.time,
@@ -80,15 +77,27 @@ class Bot {
                 description: i18n.__('bot_commands.city')
             },
             {
+                command: ELastMessage.type,
+                description: i18n.__('bot_commands.type')
+            },
+            {
                 command: ELastMessage.weather,
                 description: i18n.__('bot_commands.weather')
             },
             {
-                command: ELastMessage.type,
-                description: i18n.__('bot_commands.type')
-            }
+                command: ELastMessage.config,
+                description: i18n.__('bot_commands.config')
+            },
         ]
         this.bot.setMyCommands(commands);
+    }
+
+    private getTypeVariants = (chatConfig: IChatConfig) => {
+        return [
+            i18n.__({phrase: 'keyboard.time.1day', locale: chatConfig.lang}),
+            i18n.__({phrase: 'keyboard.time.3day', locale: chatConfig.lang}),
+            i18n.__({phrase: 'keyboard.time.10day', locale: chatConfig.lang}),
+        ]
     }
 
     private loadEnv = () => {
@@ -154,7 +163,8 @@ class Bot {
                         id: null
                     },
                     citiesData: [],
-                    cityId: null
+                    cityId: null,
+                    lang: "en"
                 }
                 chatConfig = newConfig
                 this.chatConfig.push(newConfig)
@@ -162,7 +172,14 @@ class Bot {
 
             // start
             if (this.isMessageCommand(msg, ELastMessage.start)) {
-                await this.bot.sendMessage(msg.chat.id, startTextEn, {
+                let _text = "123"
+                console.log(text)
+                if (chatConfig?.lang === "en") _text = startTextEn
+                if (chatConfig?.lang === "zh") _text = startTexZh
+                if (chatConfig?.lang === "uk") _text = startTexUk
+                if (chatConfig?.lang === "ru") _text = startTexRu
+                if (chatConfig?.lang === "es") _text = startTexEs
+                await this.bot.sendMessage(msg.chat.id, _text, {
                     parse_mode: 'Markdown',
                     disable_web_page_preview: true
                 });
@@ -187,7 +204,7 @@ class Bot {
                 this.setTime(msg, text)
                 await this.bot.sendMessage(msg.chat.id, i18n.__({
                         phrase: 'bot_messages.specify_time_done',
-                        locale: "en"
+                    locale: chatConfig.lang
                     }),
                 );
             }
@@ -199,7 +216,7 @@ class Bot {
                 if (text && text.length > 3) {
                     await this.bot.sendMessage(msg.chat.id, i18n.__({
                         phrase: 'bot_messages.specify_city',
-                        locale: "en"
+                        locale: chatConfig.lang
                     }))
                     this.setLastMessage(msg, ELastMessage.null)
 
@@ -229,13 +246,13 @@ class Bot {
                     const citiesKeys = this.getCitiesKeyboard(citiesNames)
                     await this.bot.sendMessage(msg.chat.id, i18n.__({
                         phrase: 'bot_messages.specify_city_select',
-                        locale: "en"
+                        locale: chatConfig.lang
                     }), citiesKeys)
                     this.setLastMessage(msg, ELastMessage.citydonedone)
                 } else {
                     await this.bot.sendMessage(msg.chat.id, i18n.__({
                         phrase: 'bot_messages.specify_city_another',
-                        locale: "en"
+                        locale: chatConfig.lang
                     }));
                 }
             }
@@ -258,31 +275,56 @@ class Bot {
                     this.setCitiesId(msg, (targetCitiData as ICityData).id)
                     await this.bot.sendMessage(msg.chat.id, i18n.__({
                         phrase: 'bot_messages.specify_city_done',
-                        locale: "en"
+                        locale: chatConfig.lang
                     }))
                 }
             }
+            // ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+            // ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### LANG
+
+            // get
+            if (chatConfig && this.isMessageCommand(msg, ELastMessage.lang)) {
+                await this.bot.sendMessage(msg.chat.id, i18n.__({
+                    phrase: 'bot_messages.specify_lang',
+                    locale: chatConfig.lang
+                }), this.getLangKeyboard())
+                setTimeout(() => {
+                    this.setLastMessage(msg, ELastMessage.langdone)
+                }, 700)
+            }
+            // select
+            if (chatConfig && text && chatConfig?.lastMessage === ELastMessage.langdone && this.langFullNames.includes(text)) {
+                await this.bot.sendMessage(msg.chat.id, i18n.__({
+                    phrase: 'bot_messages.specify_lang_select_done',
+                    locale: chatConfig.lang
+                }))
+                this.setLangData(msg, text)
+                this.setLastMessage(msg, ELastMessage.null)
+            }
+
+
             // ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
             // type
             if (chatConfig && this.isMessageCommand(msg, ELastMessage.type)) {
                 await this.bot.sendMessage(msg.chat.id, i18n.__({
                     phrase: 'bot_messages.specify_set_type',
-                    locale: "en"
-                }), this.getTypeKeyboard())
+                    locale: chatConfig.lang
+                }), this.getTypeKeyboard(chatConfig))
                 this.setLastMessage(msg, ELastMessage.typedone)
             }
 
             // typedone
-            if (chatConfig && text && chatConfig?.lastMessage === ELastMessage.typedone && this.typeVariants.includes(text)) {
+            if (chatConfig && text && chatConfig?.lastMessage === ELastMessage.typedone && this.getTypeVariants(chatConfig).includes(text)) {
                 await this.bot.sendMessage(msg.chat.id, i18n.__({
                     phrase: 'bot_messages.specify_set_type_done',
-                    locale: "en"
+                    locale: chatConfig.lang
                 }))
                 let type: 1 | 3 | 10 = 1
-                if (text === this.typeVariants[0]) type = 1
-                else if (text === this.typeVariants[1]) type = 3
-                else if (text === this.typeVariants[2]) type = 10
+                if (text === this.getTypeVariants(chatConfig)[0]) type = 1
+                else if (text === this.getTypeVariants(chatConfig)[1]) type = 3
+                else if (text === this.getTypeVariants(chatConfig)[2]) type = 10
                 this.setType(msg, type)
                 this.setLastMessage(msg, ELastMessage.null)
             }
@@ -292,13 +334,13 @@ class Bot {
                 if (this.isBotConfigured(msg)) {
                     await this.bot.sendMessage(msg.chat.id, i18n.__({
                         phrase: 'bot_messages.preparing_forecast',
-                        locale: "en"
+                        locale: chatConfig.lang
                     }))
                     this.sendWeather(chatConfig)
                 } else {
                     await this.bot.sendMessage(msg.chat.id, i18n.__({
                         phrase: 'bot_messages.specify_need_config',
-                        locale: "en"
+                        locale: chatConfig.lang
                     }))
                 }
             }
@@ -315,7 +357,7 @@ class Bot {
             if (await screenshot.takeScreenshotFor1Day(`${chatConfig.city}`, chatConfig.cityId || 0)) {
                 await this.bot.sendMessage(chatConfig.chatId, `${i18n.__({
                     phrase: 'bot_messages.forecast_for',
-                    locale: "en"
+                    locale: chatConfig.lang
                 })} ${chatConfig?.cityData?.name}:`)
                 await this.bot.sendPhoto(chatConfig.chatId, `./screenshots/1-${chatConfig.cityId}.png`);
             } else isError = true
@@ -323,7 +365,7 @@ class Bot {
             if (await screenshot.takeScreenshotFor3Days(`${chatConfig.city}`, chatConfig.cityId || 0)) {
                 await this.bot.sendMessage(chatConfig.chatId, `${i18n.__({
                     phrase: 'bot_messages.forecast_for',
-                    locale: "en"
+                    locale: chatConfig.lang
                 })} ${chatConfig?.cityData?.name}:`)
                 await this.bot.sendPhoto(chatConfig.chatId, `./screenshots/3-${chatConfig.cityId}.png`);
             } else isError = true
@@ -331,7 +373,7 @@ class Bot {
             if (await screenshot.takeScreenshotFor10Days(`${chatConfig.city}`, chatConfig.cityId || 0)) {
                 await this.bot.sendMessage(chatConfig.chatId, `${i18n.__({
                     phrase: 'bot_messages.forecast_for',
-                    locale: "en"
+                    locale: chatConfig.lang
                 })} ${chatConfig?.cityData?.name}:`)
                 await this.bot.sendPhoto(chatConfig.chatId, `./screenshots/10-${chatConfig.cityId}.png`);
             } else isError = true
@@ -339,7 +381,7 @@ class Bot {
         if (isError) {
             await this.bot.sendMessage(chatConfig.chatId, i18n.__({
                 phrase: 'bot_messages.error_receiving_data',
-                locale: "en"
+                locale: chatConfig.lang
             }))
         }
     }
@@ -410,6 +452,19 @@ class Bot {
         })
     }
 
+    private setLangData = (msg: Message, lang: string) => {
+        let _leng = "en"
+        if (lang === this.langFullNames[1]) _leng = "zh"
+        if (lang === this.langFullNames[2]) _leng = "uk"
+        if (lang === this.langFullNames[3]) _leng = "ru"
+        if (lang === this.langFullNames[4]) _leng = "es"
+        this.chatConfig = this.chatConfig.map(cc => {
+            if (cc.chatId === msg.chat.id) {
+                cc.lang = _leng
+            }
+            return cc
+        })
+    }
     private setCitiData = (msg: Message, name: string | null, slug: string | null, id: number | null) => {
         this.chatConfig = this.chatConfig.map(cc => {
             if (cc.chatId === msg.chat.id) {
@@ -457,10 +512,23 @@ class Bot {
         }
     }
 
-    private getTypeKeyboard = () => {
+    private getTypeKeyboard = (chatConfig: IChatConfig) => {
         return {
             reply_markup: {
-                keyboard: [this.typeVariants.map(tv => {
+                keyboard: [this.getTypeVariants(chatConfig).map(tv => {
+                    return {
+                        text: tv
+                    }
+                })],
+                resize_keyboard: false,
+                one_time_keyboard: true
+            }
+        }
+    }
+    private getLangKeyboard = () => {
+        return {
+            reply_markup: {
+                keyboard: [this.langFullNames.map(tv => {
                     return {
                         text: tv
                     }

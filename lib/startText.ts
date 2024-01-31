@@ -1,25 +1,3 @@
-// export const startTextEn = `
-// 🌤 **Welcome to WindWardBot!**
-//
-// WindWardBot is your go\\-to weather assistant for all your forecasting needs. Whether you're planning your day or organizing an outdoor event, WindWardBot has got you covered.
-//
-// **Key features:**
-// \\- **Weather Forecast:** Receive accurate and up\\-to\\-date weather forecasts for your specified location.
-// \\- **Customization:** Tailor your experience by configuring the bot settings to your preferences.
-// \\- **Versatile Usage:** Utilize WindWardBot in both individual chats and group conversations.
-//
-// **Commands:**
-// \\- \`/config\`: Retrieve and adjust the bot settings according to your preferences.
-// \\- \`/city\`: Set your preferred city to receive weather forecasts.
-// \\- \`/type\`: Specify the type of weather forecast you're interested in (1 day, 3 days, or 10 days).
-// \\- \`/weather\`: Get the latest weather forecast based on your configured settings.
-//
-// WindWardBot is an open\\-source project, and everyone is welcome to contribute to its development. You can find the bot's source code and join its development on [GitHub](https://github.com/StekolschikovV/windward\\-bot).
-//
-// Let's get started! Just use one of the commands above to begin exploring the weather with WindWardBot.
-//
-// `
-
 export const startTextEn = `
 🌤 *Welcome to WindWardBot!*
 

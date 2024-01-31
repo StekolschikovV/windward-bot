@@ -1,6 +1,8 @@
 export enum ELastMessage {
     config = "config",
     city = "city",
+    lang = "lang",
+    langdone = "langdone",
     citydone = "citydone",
     citydonedone = "citydonedone",
     weather = "weather",
@@ -30,4 +32,5 @@ export interface IChatConfig {
     citiesData: ICityData[]
     type: 1 | 3 | 10 | null
     lastMessage: ELastMessage
+    lang: string
 }

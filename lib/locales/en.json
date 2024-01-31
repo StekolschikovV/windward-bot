@@ -5,7 +5,8 @@
     "time": "Specify time",
     "city": "Specify city",
     "weather": "Check weather",
-    "type": "Set forecast type"
+    "type": "Set forecast type",
+    "lang": "Specify language"
   },
   "keyboard": {
     "time": {
@@ -15,6 +16,9 @@
     }
   },
   "bot_messages": {
+    "specify_lang": "Select language",
+    "specify_lang_select": "Select language",
+    "specify_lang_select_done": "Language set",
     "specify_time": "Specify time",
     "specify_time_done": "Time set",
     "specify_city": "Enter your city name:",

@@ -2,10 +2,11 @@
   "bot_commands": {
     "start": "Iniciar el bot",
     "config": "Mostrar configuración del bot",
-    "time": "Especificar tiempo",
+    "time": "Especificar hora",
     "city": "Especificar ciudad",
-    "weather": "Consultar el tiempo",
-    "type": "Establecer tipo de pronóstico"
+    "weather": "Consultar clima",
+    "type": "Establecer tipo de pronóstico",
+    "lang": "Especificar idioma"
   },
   "keyboard": {
     "time": {
@@ -15,16 +16,19 @@
     }
   },
   "bot_messages": {
-    "specify_time": "Especificar tiempo",
-    "specify_time_done": "Tiempo establecido",
+    "specify_lang": "Seleccionar idioma",
+    "specify_lang_select": "Seleccionar idioma",
+    "specify_lang_select_done": "Idioma establecido",
+    "specify_time": "Especificar hora",
+    "specify_time_done": "Hora establecida",
     "specify_city": "Ingrese el nombre de su ciudad:",
-    "specify_city_another": "Proporcione otro nombre para su ciudad",
+    "specify_city_another": "Por favor, proporcione otro nombre para su ciudad",
     "specify_city_select": "Seleccionar ciudad",
     "specify_city_done": "Ciudad establecida",
     "specify_set_type": "Especificar tipo:",
     "specify_set_type_done": "Tipo establecido",
     "preparing_forecast": "Preparando pronóstico...",
-    "specify_need_config": "¡Para obtener el tiempo, primero debe configurar el bot!",
+    "specify_need_config": "¡Para obtener el clima, primero necesitas configurar el bot!",
     "forecast_for": "Pronóstico del tiempo para",
     "error_receiving_data": "Se produjo un error al recibir los datos."
   }

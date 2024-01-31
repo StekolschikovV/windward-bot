@@ -5,27 +5,31 @@
     "time": "指定时间",
     "city": "指定城市",
     "weather": "检查天气",
-    "type": "设置预报类型"
+    "type": "设置预报类型",
+    "lang": "指定语言"
   },
   "keyboard": {
     "time": {
-      "1day": "1天",
-      "3day": "3天",
-      "10day": "10天"
+      "1day": "1 天",
+      "3day": "3 天",
+      "10day": "10 天"
     }
   },
   "bot_messages": {
+    "specify_lang": "选择语言",
+    "specify_lang_select": "选择语言",
+    "specify_lang_select_done": "语言设置完成",
     "specify_time": "指定时间",
-    "specify_time_done": "时间设置",
-    "specify_city": "输入您的城市名称：",
-    "specify_city_another": "请提供另一个城市名称",
+    "specify_time_done": "时间设置完成",
+    "specify_city": "输入您的城市名称:",
+    "specify_city_another": "请提供您城市的另一个名称",
     "specify_city_select": "选择城市",
-    "specify_city_done": "城市设置",
-    "specify_set_type": "指定类型：",
-    "specify_set_type_done": "类型设置",
-    "preparing_forecast": "正在准备预报……",
-    "specify_need_config": "要获取天气信息，您需要先配置机器人！",
+    "specify_city_done": "城市设置完成",
+    "specify_set_type": "指定类型:",
+    "specify_set_type_done": "类型设置完成",
+    "preparing_forecast": "正在准备预报...",
+    "specify_need_config": "要获取天气预报，您需要首先配置机器人！",
     "forecast_for": "天气预报为",
-    "error_receiving_data": "接收数据时出错。"
+    "error_receiving_data": "接收数据时发生错误。"
   }
 }
