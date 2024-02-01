@@ -8,7 +8,6 @@ import screenshot from "./Screenshot";
 import dbManager from "./DatabaseManager";
 
 import {ELastMessage, IChatConfig, ICityData} from "./interface";
-import {startTexEs, startTexRu, startTextEn, startTexUk, startTexZh} from "./text/startText";
 
 dotenv.config();
 
@@ -173,12 +172,12 @@ class Bot extends Helper {
     private listen(): void {
         this.bot.on('text', async msg => {
 
+            const isAdmin = await this.isAdmin(msg)
+            if (!isAdmin) return
+
             const text: string | null | undefined | ELastMessage = msg.text
             const chatId = msg.chat?.id
             let chatConfig = this.chatConfig?.find(cc => cc.chatId === chatId) || null
-            const isAdmin = await this.isAdmin(msg)
-
-            if (!isAdmin) return
 
             if (!chatConfig) {
                 const newConfig = {
@@ -202,13 +201,8 @@ class Bot extends Helper {
 
             // start
             if (this.isMessageCommand(msg, ELastMessage.start, this.BOT_NAME)) {
-                let _text = startTextEn
-                if (chatConfig?.lang === "en") _text = startTextEn
-                else if (chatConfig?.lang === "zh") _text = startTexZh
-                else if (chatConfig?.lang === "uk") _text = startTexUk
-                else if (chatConfig?.lang === "ru") _text = startTexRu
-                else _text = startTexEs
-                await this.bot.sendMessage(msg.chat.id, _text, {
+                const notSpecifiedText = i18n.__({phrase: "bot_messages.start", locale: chatConfig.lang})
+                await this.bot.sendMessage(msg.chat.id, notSpecifiedText, {
                     parse_mode: 'Markdown',
                     disable_web_page_preview: true
                 });
