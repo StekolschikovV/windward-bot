@@ -8,26 +8,55 @@ import screenshot from "./Screenshot";
 import dbManager from "./DatabaseManager";
 
 import {ELastMessage, IChatConfig, ICityData} from "./interface";
-import {startTexEs, startTexRu, startTextEn, startTexUk, startTexZh} from "./startText";
+import {startTexEs, startTexRu, startTextEn, startTexUk, startTexZh} from "./text/startText";
 
 dotenv.config();
 
-class Bot {
+class Helper {
+    protected isMessageCommand = (msg: Message, command: string, BOT_NAME: string) => {
+        return msg.text && (msg.text == `/${command}` || msg.text == `/${command}@${BOT_NAME}`)
+    }
+    protected getFullCityName = (country: string | null, district: string | null, city?: string | null) => {
+        return `${country}, ${district}, ${city}`
+    }
+
+    protected arrayToArrays = (array: any[], arrayCount: number) => {
+        const result: [][] = []
+        let temp: [] = []
+        array.forEach(a => {
+            // @ts-ignore
+            temp.push(a)
+            if (temp.length >= arrayCount) {
+                result.push(temp)
+                temp = []
+            }
+        })
+        if (temp) {
+            result.push(temp)
+        }
+        return result
+    }
+
+}
+
+class Bot extends Helper {
 
     bot!: TelegramBot;
-    timeVariationLine = ["7:00", "8:00", "9:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"]
+
+    TIME_RANGE: string[] = []
     API_KEY_BOT = ""
+    BOT_NAME = ""
 
     cronTask: cron.ScheduledTask[] = []
-    botName = ""
     langFullNames = ["English", "Chinese", "Ukrainian", "Russian", "Spanish"]
 
     constructor() {
+        super()
         this.loadEnv()
         this.loadDB()
         this.bot = new TelegramBot(this.API_KEY_BOT, {
             polling: {
-                interval: 300,
+                // interval: 300,
                 autoStart: true
             }
         })
@@ -101,17 +130,18 @@ class Bot {
     }
 
     private loadEnv = () => {
-        if (process.env.BOT_NAME && process.env.API_KEY_BOT) {
+        if (process.env.BOT_NAME && process.env.API_KEY_BOT && process.env.TIME_RANGE) {
             this.API_KEY_BOT = process.env.API_KEY_BOT
-            this.botName = process.env.BOT_NAME
+            this.BOT_NAME = process.env.BOT_NAME
+            this.TIME_RANGE = (process.env.TIME_RANGE || "").split(",")
         } else {
-            throw new Error("The application encountered an error due to missing variables: BOT_NAME or API_KEY_BOT. Please check the .env configuration file or provide them when starting the container.")
+            throw new Error("The application encountered an error due to missing variables: BOT_NAME or API_KEY_BOT or TIME_RANGE. Please check the .env configuration file or provide them when starting the container.")
         }
     }
 
     private crone = () => {
         this.cronTask.forEach(task => task.stop());
-        this.timeVariationLine.forEach(tv => {
+        this.TIME_RANGE.forEach(tv => {
             const cronPattern = `0 ${tv.split(":")[1]} ${tv.split(":")[0]} * * *`;
             const task = cron.schedule(cronPattern, () => {
                 this.chatConfig.forEach(chatConfig => {
@@ -171,14 +201,13 @@ class Bot {
             }
 
             // start
-            if (this.isMessageCommand(msg, ELastMessage.start)) {
-                let _text = "123"
-                console.log(text)
+            if (this.isMessageCommand(msg, ELastMessage.start, this.BOT_NAME)) {
+                let _text = startTextEn
                 if (chatConfig?.lang === "en") _text = startTextEn
-                if (chatConfig?.lang === "zh") _text = startTexZh
-                if (chatConfig?.lang === "uk") _text = startTexUk
-                if (chatConfig?.lang === "ru") _text = startTexRu
-                if (chatConfig?.lang === "es") _text = startTexEs
+                else if (chatConfig?.lang === "zh") _text = startTexZh
+                else if (chatConfig?.lang === "uk") _text = startTexUk
+                else if (chatConfig?.lang === "ru") _text = startTexRu
+                else _text = startTexEs
                 await this.bot.sendMessage(msg.chat.id, _text, {
                     parse_mode: 'Markdown',
                     disable_web_page_preview: true
@@ -186,19 +215,29 @@ class Bot {
             }
 
             // config
-            if (this.isMessageCommand(msg, ELastMessage.config)) {
-                await this.bot.sendMessage(msg.chat.id, JSON.stringify(this.chatConfig, null, "\t"));
+            if (this.isMessageCommand(msg, ELastMessage.config, this.BOT_NAME)) {
+                const {city, time, type, lang} = this.getConfig(msg)
+                const notSpecifiedText = i18n.__({phrase: "text.not_specified", locale: chatConfig.lang})
+                await this.bot.sendMessage(msg.chat.id,
+                    (i18n.__({phrase: "bot_messages.configuration", locale: chatConfig.lang}, {
+                            city: city || notSpecifiedText,
+                            time: time || notSpecifiedText,
+                            type: type || notSpecifiedText,
+                            lang: lang || notSpecifiedText,
+                        }
+                    )),
+                    {parse_mode: 'Markdown'});
             }
 
             // timedone
-            if (this.isMessageCommand(msg, ELastMessage.time)) {
+            if (this.isMessageCommand(msg, ELastMessage.time, this.BOT_NAME)) {
                 this.setLastMessage(msg, ELastMessage.timedone)
                 await this.bot.sendMessage(msg.chat.id, i18n.__('bot_messages.specify_time'), this.getTimeKeyboard())
             }
 
             // timedone
             if (
-                chatConfig && text && chatConfig?.lastMessage === ELastMessage.timedone && this.timeVariationLine.includes(text)
+                chatConfig && text && chatConfig?.lastMessage === ELastMessage.timedone && this.TIME_RANGE.includes(text)
             ) {
                 this.setLastMessage(msg, ELastMessage.null)
                 this.setTime(msg, text)
@@ -212,7 +251,7 @@ class Bot {
             // ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### CITY CONFIG
 
             // city
-            if (chatConfig && this.isMessageCommand(msg, ELastMessage.city)) {
+            if (chatConfig && this.isMessageCommand(msg, ELastMessage.city, this.BOT_NAME)) {
                 if (text && text.length > 3) {
                     await this.bot.sendMessage(msg.chat.id, i18n.__({
                         phrase: 'bot_messages.specify_city',
@@ -284,7 +323,7 @@ class Bot {
             // ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### LANG
 
             // get
-            if (chatConfig && this.isMessageCommand(msg, ELastMessage.lang)) {
+            if (chatConfig && this.isMessageCommand(msg, ELastMessage.lang, this.BOT_NAME)) {
                 await this.bot.sendMessage(msg.chat.id, i18n.__({
                     phrase: 'bot_messages.specify_lang',
                     locale: chatConfig.lang
@@ -307,7 +346,7 @@ class Bot {
             // ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
             // type
-            if (chatConfig && this.isMessageCommand(msg, ELastMessage.type)) {
+            if (chatConfig && this.isMessageCommand(msg, ELastMessage.type, this.BOT_NAME)) {
                 await this.bot.sendMessage(msg.chat.id, i18n.__({
                     phrase: 'bot_messages.specify_set_type',
                     locale: chatConfig.lang
@@ -330,7 +369,7 @@ class Bot {
             }
 
             // weather
-            if (chatConfig && this.isMessageCommand(msg, ELastMessage.weather)) {
+            if (chatConfig && this.isMessageCommand(msg, ELastMessage.weather, this.BOT_NAME)) {
                 if (this.isBotConfigured(msg)) {
                     await this.bot.sendMessage(msg.chat.id, i18n.__({
                         phrase: 'bot_messages.preparing_forecast',
@@ -347,9 +386,6 @@ class Bot {
         })
     }
 
-    private isMessageCommand = (msg: Message, command: string) => {
-        return msg.text && (msg.text == `/${command}` || msg.text == `/${command}@${this.botName}`)
-    }
 
     private sendWeather = async (chatConfig: IChatConfig) => {
         let isError = false
@@ -452,6 +488,19 @@ class Bot {
         })
     }
 
+    private getConfig = (msg: Message) => {
+        let time, city, type, lang = ""
+        this.chatConfig.forEach(cc => {
+            if (cc.chatId === msg.chat.id) {
+                time = cc.time
+                city = cc.city
+                type = cc.type
+                lang = cc.lang
+            }
+        })
+        return {time, city, type, lang}
+    }
+
     private setLangData = (msg: Message, lang: string) => {
         let _leng = "en"
         if (lang === this.langFullNames[1]) _leng = "zh"
@@ -474,10 +523,6 @@ class Bot {
         })
     }
 
-    private getFullCityName = (country: string | null, district: string | null, city?: string | null) => {
-        return `${country}, ${district}, ${city}`
-    }
-
     private getCitiesKeyboard = (cities: string[]) => {
         return {
             reply_markup: {
@@ -498,7 +543,7 @@ class Bot {
     private getTimeKeyboard = () => {
         return {
             reply_markup: {
-                keyboard: this.arrayToArrays(this.timeVariationLine, 4)
+                keyboard: this.arrayToArrays(this.TIME_RANGE, 4)
                     .map(e => {
                         return e.map(ee => {
                             return {
@@ -537,23 +582,6 @@ class Bot {
                 one_time_keyboard: true
             }
         }
-    }
-
-    private arrayToArrays = (array: any[], arrayCount: number) => {
-        const result: [][] = []
-        let temp: [] = []
-        array.forEach(a => {
-            // @ts-ignore
-            temp.push(a)
-            if (temp.length >= arrayCount) {
-                result.push(temp)
-                temp = []
-            }
-        })
-        if (temp) {
-            result.push(temp)
-        }
-        return result
     }
 
 }

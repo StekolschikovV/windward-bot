@@ -15,7 +15,11 @@
       "10day": "10 天"
     }
   },
+  "text": {
+    "not_specified": "未指定"
+  },
   "bot_messages": {
+    "configuration": "*配置：*\n\n要显示的城市：{{city}}\n发送消息的时间：{{time}}\n天气类型：{{type}}\n应用语言：{{lang}}",
     "specify_lang": "选择语言",
     "specify_lang_select": "选择语言",
     "specify_lang_select_done": "语言设置完成",

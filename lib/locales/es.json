@@ -15,7 +15,11 @@
       "10day": "10 días"
     }
   },
+  "text": {
+    "not_specified": "No especificado"
+  },
   "bot_messages": {
+    "configuration": "*Configuración:*\n\nCiudad a mostrar: {{city}}\nHora para enviar mensajes: {{time}}\nTipo de clima: {{type}}\nIdioma de la aplicación: {{lang}}",
     "specify_lang": "Seleccionar idioma",
     "specify_lang_select": "Seleccionar idioma",
     "specify_lang_select_done": "Idioma establecido",

@@ -15,7 +15,11 @@
       "10day": "10 днів"
     }
   },
+  "text": {
+    "not_specified": "Не вказано"
+  },
   "bot_messages": {
+    "configuration": "*Налаштування:*\n\nМісто для показу: {{city}}\nЧас для відправлення повідомлень: {{time}}\nТип погоди: {{type}}\nМова застосунку: {{lang}}",
     "specify_lang": "Виберіть мову",
     "specify_lang_select": "Виберіть мову",
     "specify_lang_select_done": "Мова встановлена",

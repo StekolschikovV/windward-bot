@@ -15,7 +15,11 @@
       "10day": "10 дней"
     }
   },
+  "text": {
+    "not_specified": "Не указано"
+  },
   "bot_messages": {
+    "configuration": "*Настройки:*\n\nГород для отображения: {{city}}\nВремя для отправки сообщений: {{time}}\nТип погоды: {{type}}\nЯзык приложения: {{lang}}",
     "specify_lang": "Выберите язык",
     "specify_lang_select": "Выберите язык",
     "specify_lang_select_done": "Язык установлен",
