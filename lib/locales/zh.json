@@ -1,10 +1,10 @@
 {
   "bot_commands": {
     "start": "启动机器人",
+    "weather": "检查天气",
     "config": "显示机器人配置",
     "time": "指定时间",
     "city": "指定城市",
-    "weather": "检查天气",
     "type": "设置预报类型",
     "lang": "指定语言"
   },
@@ -19,21 +19,21 @@
     "not_specified": "未指定"
   },
   "bot_messages": {
-    "start": "\uD83C\uDF24 *欢迎使用 WindWardBot！* \n\nWindWardBot 是您所有预测需求的天气助手。无论您是计划您的一天还是组织户外活动，WindWardBot 都能满足您的需求。\n\n*主要功能：* \n- *天气预报：* 获取您指定位置的准确及时的天气预报。 \n- *自定义：* 通过配置机器人设置来个性化您的体验。 \n- *多用途使用：* 在个人聊天和群组对话中都可以使用 WindWardBot。\n\n*命令：* \n- /config：根据您的偏好获取并调整机器人设置。 \n- /lang：设置您首选的语言。 \n- /city：设置您首选的城市以接收天气预报。 \n- /type：指定您感兴趣的天气预报类型（1 天、3 天或 10 天）。 \n- /weather：根据您的配置获取最新的天气预报。 \n\nWindWardBot 是一个开源项目，欢迎所有人为其发展做出贡献。您可以在 [GitHub](https://github.com/StekolschikovV/windward-bot) 找到该机器人的源代码并加入其开发。\n\n让我们开始吧！只需使用上述命令之一即可开始使用 WindWardBot 探索天气。\n",
-    "configuration": "*配置：* \n\n要显示的城市：{{city}} \n发送消息的时间：{{time}} \n天气类型：{{type}} \n应用语言：{{lang}}",
+    "start": "\uD83C\uDF24 *欢迎使用 WindWardBot！* \n\nWindWardBot 是您的天气助手，为您提供所有预测需求。无论您是计划您的一天还是组织户外活动，WindWardBot 都可以为您提供帮助。\n\n⚠️ 如果机器人被设置为管理员，它将能够在群组内正常运行。\n\n*主要功能：* \n- *天气预报：* 获取您指定位置的准确和最新天气预报。 \n- *定制：* 通过根据您的偏好配置机器人设置来定制您的体验。 \n- *多功能使用：* 在个人聊天和群组对话中使用 WindWardBot。\n\n*命令：* \n- /weather: 获取最新天气预报，基于您的配置。 \n- /config: 按您的偏好获取和调整机器人设置。 \n- /lang: 设置您喜欢的语言。 \n- /city: 设置您首选的城市以接收天气预报。 \n- /type: 指定您感兴趣的天气预报类型（1 天、3 天或 10 天）。\n\nWindWardBot 是一个开源项目，欢迎每个人为其发展做出贡献。 您可以在 [GitHub](https://github.com/StekolschikovV/windward-bot) 上找到该机器人的源代码并加入其开发。\n\n让我们开始吧！ 只需使用上面的一个命令即可开始使用 WindWardBot 探索天气。\n",
+    "configuration": "*配置：* \n\n城市显示为：{{city}} \n发送消息时间：{{time}} \n天气类型：{{type}} \n应用程序语言：{{lang}}",
     "specify_lang": "选择语言",
     "specify_lang_select": "选择语言",
     "specify_lang_select_done": "语言设置完成",
     "specify_time": "指定时间",
     "specify_time_done": "时间设置完成",
-    "specify_city": "请输入您的城市名称：",
+    "specify_city": "输入您的城市名称:",
     "specify_city_another": "请提供您城市的另一个名称",
     "specify_city_select": "选择城市",
     "specify_city_done": "城市设置完成",
-    "specify_set_type": "指定类型：",
+    "specify_set_type": "指定类型:",
     "specify_set_type_done": "类型设置完成",
-    "preparing_forecast": "正在准备预报...",
-    "specify_need_config": "要获取天气预报，您需要首先配置机器人！",
+    "preparing_forecast": "准备预报...",
+    "specify_need_config": "要获取天气，请先配置机器人！",
     "forecast_for": "天气预报为",
     "error_receiving_data": "接收数据时发生错误。"
   }

@@ -255,27 +255,33 @@ class Bot extends Helper {
 
                     setTimeout(() => {
                         this.setLastMessage(msg, ELastMessage.citydone)
-                    }, 3500)
+                    }, 1500)
                 }
             }
 
             // citydone
             if (chatConfig && text && text.length > 3 && chatConfig?.lastMessage === ELastMessage.citydone) {
-                const cities = await cityFinder.searchCities(text)
+                let lang = "en"
+                const cities = await cityFinder.searchCities(text, lang)
                 const citiesData: ICityData[] = cities.map(c => {
                     return {
                         id: c.id,
                         slug: c.slug,
-                        name: c?.translations?.ru?.city?.name,
-                        country: c.translations?.ru?.country?.name,
-                        district: c.translations?.ru?.district?.name,
-                        city: c.translations?.ru?.city?.name
+                        name: c?.translations?.[lang]?.city?.name,
+                        country: c.translations?.[lang]?.country?.name,
+                        district: c.translations?.[lang]?.district?.name,
+                        city: c.translations?.[lang]?.city?.name
                     }
                 })
                 if (citiesData.length > 0) {
                     this.setCitiesData(msg, citiesData)
                     const citiesNames: string[] = cities.map(c =>
-                        this.getFullCityName(c.translations?.ru?.country?.name, c.translations?.ru?.district?.name, c.translations?.ru?.city?.name))
+                        this.getFullCityName(
+                            c.translations?.[lang]?.country?.name,
+                            c.translations?.[lang]?.district?.name,
+                            c.translations?.[lang]?.city?.name
+                        )
+                    )
                     const citiesKeys = this.getCitiesKeyboard(citiesNames)
                     await this.bot.sendMessage(msg.chat.id, i18n.__({
                         phrase: 'bot_messages.specify_city_select',
@@ -312,6 +318,7 @@ class Bot extends Helper {
                     }))
                 }
             }
+
             // ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
             // ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### LANG
@@ -335,7 +342,6 @@ class Bot extends Helper {
                 this.setLangData(msg, text)
                 this.setLastMessage(msg, ELastMessage.null)
             }
-
 
             // ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 

@@ -1,68 +1,42 @@
 import axios from "axios";
-
-interface ResponseI {
-    source: string;
-    id: number;
-    url: string;
-    slug: string;
-    kind: string;
-    coordinates: {
-        latitude: number;
-        longitude: number;
-    };
-    obsStationId?: number; // Optional field
-    timeZone: number;
-    country: {
-        id: number;
-        url: string;
-        code: string;
-    };
-    district: {
-        id: number;
-        url: string;
-    };
-    subdistrict?: null | { id: number; url: string; };
-    translations: {
-        ru: {
-            city: {
-                name: string;
-                nameP?: string;
-                nameR?: string;
-            };
-            country: {
-                name: string;
-                nameP?: string;
-                nameR?: string;
-            };
-            district: {
-                name: string;
-                nameP?: string;
-                nameR?: string;
-            };
-            subdistrict?: null | { name: string; nameP: string; nameR: string; };
-        };
-    };
-    visitCount: number;
-    slugHistory?: null | { timestamp: string; fromUrl: string; }; // Optional field
-    options: {
-        significantHeightDiff: boolean;
-        landSeaMask: number;
-    };
-    updateAt: string;
-}
+import {CityFinderResponseI} from "./interface";
 
 class CityFinder {
 
-    async searchCities(cityName: string): Promise<ResponseI[]> {
-        const response: { data: ResponseI[] } = await axios
-            .get(`https://www.gismeteo.ru/mq/search/${cityName}/9/`)
-            .then(e => e.data)
+    async searchCitiesEn(cityName: string): Promise<CityFinderResponseI[]> {
+        const response: { data: CityFinderResponseI[] } = await axios
+            .get(`https://www.gismeteo.com/mq/search/${cityName}/9/`)
+            .then(e => {
+                return e.data
+            })
             .catch(e => {
                 return {
                     data: []
                 }
             })
         return response.data
+    }
+
+    async searchCitiesRu(cityName: string): Promise<CityFinderResponseI[]> {
+        const response: { data: CityFinderResponseI[] } = await axios
+            .get(`https://www.gismeteo.com/mq/search/${cityName}/9/`)
+            .then(e => {
+                return e.data
+            })
+            .catch(e => {
+                return {
+                    data: []
+                }
+            })
+        return response.data
+    }
+
+    searchCities = (cityName: string, lang: string) => {
+        if (lang === "ru") {
+            return this.searchCitiesRu(cityName)
+        } else {
+            return this.searchCitiesEn(cityName)
+        }
     }
 
 }

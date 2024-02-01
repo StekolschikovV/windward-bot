@@ -34,3 +34,54 @@ export interface IChatConfig {
     lastMessage: ELastMessage
     lang: string
 }
+
+export interface CityFinderResponseI {
+    source: string;
+    id: number;
+    url: string;
+    slug: string;
+    kind: string;
+    coordinates: {
+        latitude: number;
+        longitude: number;
+    };
+    obsStationId?: number; // Optional field
+    timeZone: number;
+    country: {
+        id: number;
+        url: string;
+        code: string;
+    };
+    district: {
+        id: number;
+        url: string;
+    };
+    subdistrict?: null | { id: number; url: string; };
+    translations: {
+        [key: string]: {
+            city: {
+                name: string;
+                nameP?: string;
+                nameR?: string;
+            };
+            country: {
+                name: string;
+                nameP?: string;
+                nameR?: string;
+            };
+            district: {
+                name: string;
+                nameP?: string;
+                nameR?: string;
+            };
+            subdistrict?: null | { name: string; nameP: string; nameR: string; };
+        };
+    };
+    visitCount: number;
+    slugHistory?: null | { timestamp: string; fromUrl: string; }; // Optional field
+    options: {
+        significantHeightDiff: boolean;
+        landSeaMask: number;
+    };
+    updateAt: string;
+}

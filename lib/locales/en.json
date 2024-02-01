@@ -2,9 +2,9 @@
   "bot_commands": {
     "start": "Start the bot",
     "config": "Show bot configuration",
+    "weather": "Check weather",
     "time": "Specify time",
     "city": "Specify city",
-    "weather": "Check weather",
     "type": "Set forecast type",
     "lang": "Specify language"
   },
@@ -19,7 +19,7 @@
     "not_specified": "Not specified"
   },
   "bot_messages": {
-    "start": "\uD83C\uDF24 *Welcome to WindWardBot!*\n\nWindWardBot is your go-to weather assistant for all your forecasting needs. Whether you're planning your day or organizing an outdoor event, WindWardBot has got you covered.\n\n*Key features:*\n- *Weather Forecast:* Receive accurate and up-to-date weather forecasts for your specified location.\n- *Customization:* Tailor your experience by configuring the bot settings to your preferences.\n- *Versatile Usage:* Utilize WindWardBot in both individual chats and group conversations.\n\n*Commands:*\n- /config: Retrieve and adjust the bot settings according to your preferences.\n- /lang: Set your preferred language.\n- /city: Set your preferred city to receive weather forecasts.\n- /type: Specify the type of weather forecast you're interested in (1 day, 3 days, or 10 days).\n- /weather: Get the latest weather forecast based on your configured settings.\n\nWindWardBot is an open-source project, and everyone is welcome to contribute to its development. You can find the bot's source code and join its development on [GitHub](https://github.com/StekolschikovV/windward-bot).\n\nLet's get started! Just use one of the commands above to begin exploring the weather with WindWardBot.\n",
+    "start": "\uD83C\uDF24 *Welcome to WindWardBot!* \n\nWindWardBot is your go-to weather assistant for all your forecasting needs. Whether you're planning your day or organizing an outdoor event, WindWardBot has got you covered.\n\n⚠️ If the bot is made an admin, it will be able to function properly within the group.\n\n*Key features:*\n- *Weather Forecast:* Receive accurate and up-to-date weather forecasts for your specified location. \n- *Customization:* Tailor your experience by configuring the bot settings to your preferences. \n- *Versatile Usage:* Utilize WindWardBot in both individual chats and group conversations.\n\n*Commands:*\n- /weather: Get the latest weather forecast based on your configured settings. \n- /config: Retrieve and adjust the bot settings according to your preferences. \n- /lang: Set your preferred language. \n- /city: Set your preferred city to receive weather forecasts. \n- /type: Specify the type of weather forecast you're interested in (1 day, 3 days, or 10 days).\n\nWindWardBot is an open-source project, and everyone is welcome to contribute to its development. You can find the bot's source code and join its development on [GitHub](https://github.com/StekolschikovV/windward-bot).\n\nLet's get started! Just use one of the commands above to begin exploring the weather with WindWardBot.\n",
     "configuration": "*Configuration:*\n\nCity to show: {{city}}\nTime to send messages: {{time}}\nWeather type: {{type}}\nApplication language: {{lang}}",
     "specify_lang": "Select language",
     "specify_lang_select": "Select language",
