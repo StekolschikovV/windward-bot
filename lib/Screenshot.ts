@@ -35,8 +35,12 @@ class Screenshot {
             const page = await browser.newPage();
             await page.goto(`https://www.gismeteo.com/weather-${cityName}-${cityId}/now/`);
             await page.setViewport({width: 1080, height: 1024});
-            await page.waitForSelector('.fc-button.fc-cta-consent.fc-primary-button');
-            await page.click('.fc-button.fc-cta-consent.fc-primary-button');
+            try {
+                await page.waitForSelector('.fc-button.fc-cta-consent.fc-primary-button', {timeout: 10000});
+                await page.click('.fc-button.fc-cta-consent.fc-primary-button');
+            } catch (error) {
+                console.error("Произошла ошибка:", error);
+            }
             const column1El = await page.$(targetClass);
             if (column1El) {
                 result = true
@@ -59,8 +63,12 @@ class Screenshot {
         try {
             const page = await browser.newPage();
             await page.goto(`https://www.gismeteo.com/weather-${cityName}-${cityId}/3-days`);
-            await page.waitForSelector('.fc-button.fc-cta-consent.fc-primary-button');
-            await page.click('.fc-button.fc-cta-consent.fc-primary-button');
+            try {
+                await page.waitForSelector('.fc-button.fc-cta-consent.fc-primary-button', {timeout: 10000});
+                await page.click('.fc-button.fc-cta-consent.fc-primary-button');
+            } catch (error) {
+                console.error("Произошла ошибка:", error);
+            }
             await page.setViewport({width: 1080, height: 1024});
             await page.waitForSelector(targetClass);
             const column1El = await page.$(targetClass);
@@ -85,8 +93,12 @@ class Screenshot {
             await page.goto(`https://www.gismeteo.com/weather-${cityName}-${cityId}/10-days/`);
             await page.setViewport({width: 1080, height: 1024});
             await page.waitForSelector('.widget-body');
-            await page.waitForSelector('.fc-button.fc-cta-consent.fc-primary-button');
-            await page.click('.fc-button.fc-cta-consent.fc-primary-button');
+            try {
+                await page.waitForSelector('.fc-button.fc-cta-consent.fc-primary-button', {timeout: 10000});
+                await page.click('.fc-button.fc-cta-consent.fc-primary-button');
+            } catch (error) {
+                console.error("Произошла ошибка:", error);
+            }
             const column1El = await page.$('.widget-body');
             if (column1El) {
                 result = true
