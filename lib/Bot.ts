@@ -575,11 +575,15 @@ class Bot extends Helper {
     private getLangKeyboard = () => {
         return {
             reply_markup: {
-                keyboard: [this.langFullNames.map(tv => {
-                    return {
-                        text: tv
-                    }
-                })],
+                keyboard: this.arrayToArrays(this.langFullNames, 1)
+                    .map(e => {
+                        return e.map(ee => {
+                            return {
+                                text: ee
+                            }
+                        })
+                    }),
+
                 resize_keyboard: false,
                 one_time_keyboard: true
             }
