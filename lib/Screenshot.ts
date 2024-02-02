@@ -36,8 +36,10 @@ class Screenshot {
             await page.goto(`https://www.gismeteo.com/weather-${cityName}-${cityId}/now/`);
             await page.setViewport({width: 1080, height: 1024});
             try {
-                await page.waitForSelector('.fc-button.fc-cta-consent.fc-primary-button', {timeout: 10000});
-                await page.click('.fc-button.fc-cta-consent.fc-primary-button');
+                if (isDev) {
+                    await page.waitForSelector('.fc-button.fc-cta-consent.fc-primary-button', {timeout: 10000});
+                    await page.click('.fc-button.fc-cta-consent.fc-primary-button');
+                }
             } catch (error) {
                 console.error("Произошла ошибка:", error);
             }
@@ -64,8 +66,10 @@ class Screenshot {
             const page = await browser.newPage();
             await page.goto(`https://www.gismeteo.com/weather-${cityName}-${cityId}/3-days`);
             try {
-                await page.waitForSelector('.fc-button.fc-cta-consent.fc-primary-button', {timeout: 10000});
-                await page.click('.fc-button.fc-cta-consent.fc-primary-button');
+                if (isDev) {
+                    await page.waitForSelector('.fc-button.fc-cta-consent.fc-primary-button', {timeout: 10000});
+                    await page.click('.fc-button.fc-cta-consent.fc-primary-button');
+                }
             } catch (error) {
                 console.error("Произошла ошибка:", error);
             }
@@ -94,8 +98,10 @@ class Screenshot {
             await page.setViewport({width: 1080, height: 1024});
             await page.waitForSelector('.widget-body');
             try {
-                await page.waitForSelector('.fc-button.fc-cta-consent.fc-primary-button', {timeout: 10000});
-                await page.click('.fc-button.fc-cta-consent.fc-primary-button');
+                if (isDev) {
+                    await page.waitForSelector('.fc-button.fc-cta-consent.fc-primary-button', {timeout: 10000});
+                    await page.click('.fc-button.fc-cta-consent.fc-primary-button');
+                }
             } catch (error) {
                 console.error("Произошла ошибка:", error);
             }
