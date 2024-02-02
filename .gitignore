@@ -4,3 +4,6 @@
 .env
 /db.sqlite
 run.sh
+/lib/*.js
+/lib/*.map
+/db/

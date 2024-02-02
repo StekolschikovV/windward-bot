@@ -12,15 +12,22 @@ RUN mkdir -p $HOME/app
 WORKDIR $HOME/app
 
 COPY package.json ./
-RUN yarn global add pm2 ts-node
-RUN yarn add typescript
+RUN yarn global add pm2 ts-node typescript
+RUN #yarn add typescript
 RUN yarn install --frozen-lockfile
 
-RUN mkdir -p screenshots
+RUN mkdir -p screenshots db
+RUN touch db/db.sqlite
+VOLUME db
+RUN chmod 7777 db/db.sqlite
+ENV PATH $PATH:./node_modules/.bin/
+
 
 COPY . .
 
-USER app-user
+
+#RUN tsc index.ts
+
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
@@ -28,4 +35,7 @@ ENV BOT_NAME=""
 ENV API_KEY_BOT=""
 ENV TIME_RANGE=""
 
-CMD ["pm2-runtime", "start", "ecosystem.config.js"]
+
+VOLUME db.sqlite
+
+CMD ["pm2-runtime", "index.js"]

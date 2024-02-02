@@ -1,9 +1,17 @@
 import sqlite3 from 'sqlite3';
+import fs from "fs";
 
 class DatabaseManager {
-    private db: sqlite3.Database;
+
+    private db!: sqlite3.Database;
 
     constructor(databaseName: string) {
+        const dbDir = 'db';
+        try {
+            fs.accessSync(dbDir, fs.constants.F_OK);
+        } catch (err) {
+            fs.mkdirSync(dbDir);
+        }
         this.db = new sqlite3.Database(databaseName);
         this.initializeDatabase();
     }
@@ -58,6 +66,6 @@ class DatabaseManager {
     }
 }
 
-const dbManager = new DatabaseManager('db.sqlite');
+const dbManager = new DatabaseManager('./db/db.sqlite');
 
 export default dbManager

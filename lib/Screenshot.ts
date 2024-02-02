@@ -1,20 +1,35 @@
 import puppeteer from "puppeteer";
+import * as fs from "fs";
 
 class Screenshot {
 
-    public async takeScreenshotFor1Day(cityName: string, cityId: number): Promise<boolean> {
+    constructor() {
+        const screenshotsDir = './screenshots';
+        try {
+            fs.accessSync(screenshotsDir, fs.constants.F_OK);
+        } catch (err) {
+            fs.mkdirSync(screenshotsDir);
+        }
+    }
+
+    public getConfig = (isDev: boolean) => {
+        if (isDev) {
+            return {
+                headless: true
+            }
+        } else {
+            return {
+                executablePath: '/usr/bin/chromium',
+                args: [
+                    '--no-sandbox'
+                ]
+            }
+        }
+    }
+
+    public async takeScreenshotFor1Day(cityName: string, cityId: number, isDev: boolean): Promise<boolean> {
         let result = false
-        const browser = await puppeteer.launch({
-            executablePath: '/usr/bin/chromium',
-            args: [
-                // run without sandbox (solves Problem 3)
-                '--no-sandbox',
-                // other launch flags (discussed in Problem 3)
-                // '--disable-gpu,
-                // '--disable-dev-shm-usage',
-                // '--disable-setuid-sandbox',
-            ]
-        })
+        const browser = await puppeteer.launch(this.getConfig(isDev))
         try {
             const targetClass = ".widget.now"
             const page = await browser.newPage();
@@ -36,20 +51,10 @@ class Screenshot {
         return result
     }
 
-    public async takeScreenshotFor3Days(cityName: string, cityId: number): Promise<boolean> {
+    public async takeScreenshotFor3Days(cityName: string, cityId: number, isDev: boolean): Promise<boolean> {
         const targetClass = ".widget-body"
         let result = false
-        const browser = await puppeteer.launch({
-            executablePath: '/usr/bin/chromium',
-            args: [
-                // run without sandbox (solves Problem 3)
-                '--no-sandbox',
-                // other launch flags (discussed in Problem 3)
-                // '--disable-gpu,
-                // '--disable-dev-shm-usage',
-                // '--disable-setuid-sandbox',
-            ]
-        })
+        const browser = await puppeteer.launch(this.getConfig(isDev))
         try {
             const page = await browser.newPage();
             await page.goto(`https://www.gismeteo.com/weather-${cityName}-${cityId}/3-days`);
@@ -70,19 +75,9 @@ class Screenshot {
         return result
     }
 
-    public async takeScreenshotFor10Days(cityName: string, cityId: number): Promise<boolean> {
+    public async takeScreenshotFor10Days(cityName: string, cityId: number, isDev: boolean): Promise<boolean> {
         let result = false
-        const browser = await puppeteer.launch({
-            executablePath: '/usr/bin/chromium',
-            args: [
-                // run without sandbox (solves Problem 3)
-                '--no-sandbox',
-                // other launch flags (discussed in Problem 3)
-                // '--disable-gpu,
-                // '--disable-dev-shm-usage',
-                // '--disable-setuid-sandbox',
-            ]
-        })
+        const browser = await puppeteer.launch(this.getConfig(isDev))
         const page = await browser.newPage();
         try {
             await page.goto(`https://www.gismeteo.com/weather-${cityName}-${cityId}/10-days/`);

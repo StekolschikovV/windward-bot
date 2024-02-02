@@ -45,6 +45,7 @@ class Bot extends Helper {
     TIME_RANGE: string[] = []
     API_KEY_BOT = ""
     BOT_NAME = ""
+    DEV_MODE = false
 
     cronTask: cron.ScheduledTask[] = []
     langFullNames = ["English", "Chinese", "Ukrainian", "Russian", "Spanish"]
@@ -133,6 +134,7 @@ class Bot extends Helper {
             this.API_KEY_BOT = process.env.API_KEY_BOT
             this.BOT_NAME = process.env.BOT_NAME
             this.TIME_RANGE = (process.env.TIME_RANGE || "").split(",")
+            this.DEV_MODE = process.env.DEV_MODE === "true"
         } else {
             throw new Error("The application encountered an error due to missing variables: BOT_NAME or API_KEY_BOT or TIME_RANGE. Please check the .env configuration file or provide them when starting the container.")
         }
@@ -180,12 +182,12 @@ class Bot extends Helper {
             let chatConfig = this.chatConfig?.find(cc => cc.chatId === chatId) || null
 
             if (!chatConfig) {
-                const newConfig = {
+                const newConfig: IChatConfig = {
                     chatId,
                     time: null,
                     city: null,
                     lastMessage: ELastMessage.null,
-                    type: null,
+                    type: 1,
                     cityData: {
                         name: null,
                         slug: null,
@@ -390,7 +392,7 @@ class Bot extends Helper {
     private sendWeather = async (chatConfig: IChatConfig) => {
         let isError = false
         if (chatConfig.type === 1) {
-            if (await screenshot.takeScreenshotFor1Day(`${chatConfig.city}`, chatConfig.cityId || 0)) {
+            if (await screenshot.takeScreenshotFor1Day(`${chatConfig.city}`, chatConfig.cityId || 0, this.DEV_MODE)) {
                 await this.bot.sendMessage(chatConfig.chatId, `${i18n.__({
                     phrase: 'bot_messages.forecast_for',
                     locale: chatConfig.lang
@@ -398,7 +400,7 @@ class Bot extends Helper {
                 await this.bot.sendPhoto(chatConfig.chatId, `./screenshots/1-${chatConfig.cityId}.png`);
             } else isError = true
         } else if (chatConfig.type === 3) {
-            if (await screenshot.takeScreenshotFor3Days(`${chatConfig.city}`, chatConfig.cityId || 0)) {
+            if (await screenshot.takeScreenshotFor3Days(`${chatConfig.city}`, chatConfig.cityId || 0, this.DEV_MODE)) {
                 await this.bot.sendMessage(chatConfig.chatId, `${i18n.__({
                     phrase: 'bot_messages.forecast_for',
                     locale: chatConfig.lang
@@ -406,7 +408,7 @@ class Bot extends Helper {
                 await this.bot.sendPhoto(chatConfig.chatId, `./screenshots/3-${chatConfig.cityId}.png`);
             } else isError = true
         } else {
-            if (await screenshot.takeScreenshotFor10Days(`${chatConfig.city}`, chatConfig.cityId || 0)) {
+            if (await screenshot.takeScreenshotFor10Days(`${chatConfig.city}`, chatConfig.cityId || 0, this.DEV_MODE)) {
                 await this.bot.sendMessage(chatConfig.chatId, `${i18n.__({
                     phrase: 'bot_messages.forecast_for',
                     locale: chatConfig.lang
@@ -436,7 +438,7 @@ class Bot extends Helper {
         let result = false
         this.chatConfig.forEach(cc => {
             if (cc.chatId === msg.chat.id) {
-                if (cc.time && cc.type && cc.city) {
+                if (cc.type && cc.city) {
                     result = true
                 }
             }
