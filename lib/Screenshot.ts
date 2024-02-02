@@ -46,6 +46,7 @@ class Screenshot {
                 });
             }
         } catch (e) {
+            console.log(e)
         }
         await browser.close()
         return result
@@ -70,6 +71,7 @@ class Screenshot {
                 });
             }
         } catch (e) {
+            console.log(e)
         }
         await browser.close()
         return result
@@ -94,6 +96,7 @@ class Screenshot {
                 });
             }
         } catch (e) {
+            console.log(e)
         }
         await browser.close()
         return result
