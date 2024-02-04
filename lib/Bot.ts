@@ -87,7 +87,7 @@ class Bot extends Helper {
         dbManager.saveObject(this.chatConfig);
     }
 
-    setCommands(): void {
+    async setCommands(): Promise<void> {
         const commands = [
             {
                 command: ELastMessage.start,
@@ -118,7 +118,15 @@ class Bot extends Helper {
                 description: i18n.__('bot_commands.config')
             },
         ]
-        this.bot.setMyCommands(commands);
+        await this.bot.setMyCommands(commands);
+    }
+
+    removeHisKeyboard = function () {
+        return {
+            reply_markup: {
+                remove_keyboard: true
+            }
+        }
     }
 
     private getTypeVariants = (chatConfig: IChatConfig) => {
@@ -144,12 +152,12 @@ class Bot extends Helper {
         this.cronTask.forEach(task => task.stop());
         this.TIME_RANGE.forEach(tv => {
             const cronPattern = `0 ${tv.split(":")[1]} ${tv.split(":")[0]} * * *`;
-            const task = cron.schedule(cronPattern, () => {
-                this.chatConfig.forEach(chatConfig => {
-                    if (chatConfig.time === tv) {
-                        this.sendWeather(chatConfig)
+            const task = cron.schedule(cronPattern, async () => {
+                for (const chatConfig1 of this.chatConfig) {
+                    if (chatConfig1.time === tv) {
+                        await this.sendWeather(chatConfig1)
                     }
-                })
+                }
             });
             this.cronTask.push(task);
         })
@@ -169,7 +177,6 @@ class Bot extends Helper {
         }
         return result
     }
-
 
     private listen(): void {
         this.bot.on('text', async msg => {
@@ -206,7 +213,8 @@ class Bot extends Helper {
                 const notSpecifiedText = i18n.__({phrase: "bot_messages.start", locale: chatConfig.lang})
                 await this.bot.sendMessage(msg.chat.id, notSpecifiedText, {
                     parse_mode: 'Markdown',
-                    disable_web_page_preview: true
+                    disable_web_page_preview: true,
+                    ...this.removeHisKeyboard()
                 });
             }
 
@@ -222,13 +230,22 @@ class Bot extends Helper {
                             lang: lang || notSpecifiedText,
                         }
                     )),
-                    {parse_mode: 'Markdown'});
+                    {
+                        parse_mode: 'Markdown',
+                        ...this.removeHisKeyboard()
+                    });
             }
 
             // timedone
             if (this.isMessageCommand(msg, ELastMessage.time, this.BOT_NAME)) {
                 this.setLastMessage(msg, ELastMessage.timedone)
-                await this.bot.sendMessage(msg.chat.id, i18n.__('bot_messages.specify_time'), this.getTimeKeyboard())
+                await this.bot.sendMessage(
+                    msg.chat.id,
+                    i18n.__('bot_messages.specify_time'),
+                    {
+                        ...this.getTimeKeyboard()
+                    }
+                )
             }
 
             // timedone
@@ -237,10 +254,15 @@ class Bot extends Helper {
             ) {
                 this.setLastMessage(msg, ELastMessage.null)
                 this.setTime(msg, text)
-                await this.bot.sendMessage(msg.chat.id, i18n.__({
+                await this.bot.sendMessage(
+                    msg.chat.id,
+                    i18n.__({
                         phrase: 'bot_messages.specify_time_done',
-                    locale: chatConfig.lang
+                        locale: chatConfig.lang
                     }),
+                    {
+                        ...this.removeHisKeyboard()
+                    }
                 );
             }
 
@@ -249,12 +271,17 @@ class Bot extends Helper {
             // city
             if (chatConfig && this.isMessageCommand(msg, ELastMessage.city, this.BOT_NAME)) {
                 if (text && text.length > 3) {
-                    await this.bot.sendMessage(msg.chat.id, i18n.__({
-                        phrase: 'bot_messages.specify_city',
-                        locale: chatConfig.lang
-                    }))
+                    await this.bot.sendMessage(
+                        msg.chat.id,
+                        i18n.__({
+                            phrase: 'bot_messages.specify_city',
+                            locale: chatConfig.lang
+                        }),
+                        {
+                            ...this.removeHisKeyboard()
+                        }
+                    )
                     this.setLastMessage(msg, ELastMessage.null)
-
                     setTimeout(() => {
                         this.setLastMessage(msg, ELastMessage.citydone)
                     }, 1500)
@@ -274,7 +301,7 @@ class Bot extends Helper {
                         district: c.translations?.[lang]?.district?.name,
                         city: c.translations?.[lang]?.city?.name
                     }
-                })
+                }).filter(c => !!c)
                 if (citiesData.length > 0) {
                     this.setCitiesData(msg, citiesData)
                     const citiesNames: string[] = cities.map(c =>
@@ -291,10 +318,16 @@ class Bot extends Helper {
                     }), citiesKeys)
                     this.setLastMessage(msg, ELastMessage.citydonedone)
                 } else {
-                    await this.bot.sendMessage(msg.chat.id, i18n.__({
-                        phrase: 'bot_messages.specify_city_another',
-                        locale: chatConfig.lang
-                    }));
+                    await this.bot.sendMessage(
+                        msg.chat.id,
+                        i18n.__({
+                            phrase: 'bot_messages.specify_city_another',
+                            locale: chatConfig.lang
+                        }),
+                        {
+                            ...this.removeHisKeyboard()
+                        }
+                    );
                 }
             }
 
@@ -314,10 +347,16 @@ class Bot extends Helper {
                     this.setLastMessage(msg, ELastMessage.null)
                     this.setCitiesData(msg, [])
                     this.setCitiesId(msg, (targetCitiData as ICityData).id)
-                    await this.bot.sendMessage(msg.chat.id, i18n.__({
-                        phrase: 'bot_messages.specify_city_done',
-                        locale: chatConfig.lang
-                    }))
+                    await this.bot.sendMessage(
+                        msg.chat.id,
+                        i18n.__({
+                            phrase: 'bot_messages.specify_city_done',
+                            locale: chatConfig.lang
+                        }),
+                        {
+                            ...this.removeHisKeyboard()
+                        }
+                    )
                 }
             }
 
@@ -337,10 +376,16 @@ class Bot extends Helper {
             }
             // select
             if (chatConfig && text && chatConfig?.lastMessage === ELastMessage.langdone && this.langFullNames.includes(text)) {
-                await this.bot.sendMessage(msg.chat.id, i18n.__({
-                    phrase: 'bot_messages.specify_lang_select_done',
-                    locale: chatConfig.lang
-                }))
+                await this.bot.sendMessage(
+                    msg.chat.id,
+                    i18n.__({
+                        phrase: 'bot_messages.specify_lang_select_done',
+                        locale: chatConfig.lang
+                    }),
+                    {
+                        ...this.removeHisKeyboard()
+                    }
+                )
                 this.setLangData(msg, text)
                 this.setLastMessage(msg, ELastMessage.null)
             }
@@ -349,19 +394,29 @@ class Bot extends Helper {
 
             // type
             if (chatConfig && this.isMessageCommand(msg, ELastMessage.type, this.BOT_NAME)) {
-                await this.bot.sendMessage(msg.chat.id, i18n.__({
-                    phrase: 'bot_messages.specify_set_type',
-                    locale: chatConfig.lang
-                }), this.getTypeKeyboard(chatConfig))
+                await this.bot.sendMessage(
+                    msg.chat.id,
+                    i18n.__({
+                        phrase: 'bot_messages.specify_set_type',
+                        locale: chatConfig.lang
+                    }),
+                    this.getTypeKeyboard(chatConfig)
+                )
                 this.setLastMessage(msg, ELastMessage.typedone)
             }
 
             // typedone
             if (chatConfig && text && chatConfig?.lastMessage === ELastMessage.typedone && this.getTypeVariants(chatConfig).includes(text)) {
-                await this.bot.sendMessage(msg.chat.id, i18n.__({
-                    phrase: 'bot_messages.specify_set_type_done',
-                    locale: chatConfig.lang
-                }))
+                await this.bot.sendMessage(
+                    msg.chat.id,
+                    i18n.__({
+                        phrase: 'bot_messages.specify_set_type_done',
+                        locale: chatConfig.lang
+                    }),
+                    {
+                        ...this.removeHisKeyboard()
+                    }
+                )
                 let type: 1 | 3 | 10 = 1
                 if (text === this.getTypeVariants(chatConfig)[0]) type = 1
                 else if (text === this.getTypeVariants(chatConfig)[1]) type = 3
@@ -373,54 +428,89 @@ class Bot extends Helper {
             // weather
             if (chatConfig && this.isMessageCommand(msg, ELastMessage.weather, this.BOT_NAME)) {
                 if (this.isBotConfigured(msg)) {
-                    await this.bot.sendMessage(msg.chat.id, i18n.__({
-                        phrase: 'bot_messages.preparing_forecast',
-                        locale: chatConfig.lang
-                    }))
-                    this.sendWeather(chatConfig)
+                    await this.bot.sendMessage(
+                        msg.chat.id,
+                        i18n.__({
+                            phrase: 'bot_messages.preparing_forecast',
+                            locale: chatConfig.lang
+                        }),
+                        {
+                            ...this.removeHisKeyboard()
+                        }
+                    )
+                    await this.sendWeather(chatConfig)
                 } else {
-                    await this.bot.sendMessage(msg.chat.id, i18n.__({
-                        phrase: 'bot_messages.specify_need_config',
-                        locale: chatConfig.lang
-                    }))
+                    await this.bot.sendMessage(
+                        msg.chat.id,
+                        i18n.__({
+                            phrase: 'bot_messages.specify_need_config',
+                            locale: chatConfig.lang
+                        }),
+                        {
+                            ...this.removeHisKeyboard()
+                        }
+                    )
                 }
             }
         })
     }
 
-
     private sendWeather = async (chatConfig: IChatConfig) => {
         let isError = false
         if (chatConfig.type === 1) {
             if (await screenshot.takeScreenshotFor1Day(`${chatConfig.city}`, chatConfig.cityId || 0, this.DEV_MODE)) {
-                await this.bot.sendMessage(chatConfig.chatId, `${i18n.__({
-                    phrase: 'bot_messages.forecast_for',
-                    locale: chatConfig.lang
-                })} ${chatConfig?.cityData?.name}:`)
+                await this.bot.sendMessage(
+                    chatConfig.chatId,
+                    `${i18n.__({
+                        phrase: 'bot_messages.forecast_for',
+                        locale: chatConfig.lang
+                    })} ${chatConfig?.cityData?.name}:`,
+                    {
+                        ...this.removeHisKeyboard()
+                    }
+                )
                 await this.bot.sendPhoto(chatConfig.chatId, `./screenshots/1-${chatConfig.cityId}.png`);
             } else isError = true
         } else if (chatConfig.type === 3) {
             if (await screenshot.takeScreenshotFor3Days(`${chatConfig.city}`, chatConfig.cityId || 0, this.DEV_MODE)) {
-                await this.bot.sendMessage(chatConfig.chatId, `${i18n.__({
-                    phrase: 'bot_messages.forecast_for',
-                    locale: chatConfig.lang
-                })} ${chatConfig?.cityData?.name}:`)
+                await this.bot.sendMessage(
+                    chatConfig.chatId,
+                    `${i18n.__({
+                        phrase: 'bot_messages.forecast_for',
+                        locale: chatConfig.lang
+                    })} ${chatConfig?.cityData?.name}:`,
+                    {
+                        ...this.removeHisKeyboard()
+                    }
+                )
                 await this.bot.sendPhoto(chatConfig.chatId, `./screenshots/3-${chatConfig.cityId}.png`);
             } else isError = true
         } else {
             if (await screenshot.takeScreenshotFor10Days(`${chatConfig.city}`, chatConfig.cityId || 0, this.DEV_MODE)) {
-                await this.bot.sendMessage(chatConfig.chatId, `${i18n.__({
-                    phrase: 'bot_messages.forecast_for',
-                    locale: chatConfig.lang
-                })} ${chatConfig?.cityData?.name}:`)
+                await this.bot.sendMessage(
+                    chatConfig.chatId,
+                    `${i18n.__({
+                        phrase: 'bot_messages.forecast_for',
+                        locale: chatConfig.lang
+                    })} ${chatConfig?.cityData?.name}:`,
+                    {
+                        ...this.removeHisKeyboard()
+                    }
+                )
                 await this.bot.sendPhoto(chatConfig.chatId, `./screenshots/10-${chatConfig.cityId}.png`);
             } else isError = true
         }
         if (isError) {
-            await this.bot.sendMessage(chatConfig.chatId, i18n.__({
-                phrase: 'bot_messages.error_receiving_data',
-                locale: chatConfig.lang
-            }))
+            await this.bot.sendMessage(
+                chatConfig.chatId,
+                i18n.__({
+                    phrase: 'bot_messages.error_receiving_data',
+                    locale: chatConfig.lang
+                }),
+                {
+                    ...this.removeHisKeyboard()
+                }
+            )
         }
     }
 
@@ -432,7 +522,6 @@ class Bot extends Helper {
             return cc
         })
     }
-
 
     private isBotConfigured = (msg: Message) => {
         let result = false
@@ -481,6 +570,7 @@ class Bot extends Helper {
             return cc
         })
     }
+
     private setCitiesData = (msg: Message, cityData: ICityData[]) => {
         this.chatConfig = this.chatConfig.map(cc => {
             if (cc.chatId === msg.chat.id) {
@@ -516,6 +606,7 @@ class Bot extends Helper {
             return cc
         })
     }
+
     private setCitiData = (msg: Message, name: string | null, slug: string | null, id: number | null) => {
         this.chatConfig = this.chatConfig.map(cc => {
             if (cc.chatId === msg.chat.id) {
@@ -572,6 +663,7 @@ class Bot extends Helper {
             }
         }
     }
+
     private getLangKeyboard = () => {
         return {
             reply_markup: {
@@ -583,7 +675,6 @@ class Bot extends Helper {
                             }
                         })
                     }),
-
                 resize_keyboard: false,
                 one_time_keyboard: true
             }
@@ -593,4 +684,5 @@ class Bot extends Helper {
 }
 
 const bot = new Bot();
+
 export default bot;
