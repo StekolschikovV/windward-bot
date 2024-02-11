@@ -455,7 +455,7 @@ class Bot extends Helper {
         })
     }
 
-    private sendWeather = async (chatConfig: IChatConfig) => {
+    private _sendWeather = async (chatConfig: IChatConfig) => {
         let isError = false
         if (chatConfig.type === 1) {
             if (await screenshot.takeScreenshotFor1Day(`${chatConfig.city}`, chatConfig.cityId || 0, this.DEV_MODE)) {
@@ -499,6 +499,14 @@ class Bot extends Helper {
                 )
                 await this.bot.sendPhoto(chatConfig.chatId, `./screenshots/10-${chatConfig.cityId}.png`);
             } else isError = true
+        }
+        return isError
+    }
+
+    private sendWeather = async (chatConfig: IChatConfig) => {
+        let isError = await this._sendWeather(chatConfig)
+        if (isError) {
+            isError = await this._sendWeather(chatConfig)
         }
         if (isError) {
             await this.bot.sendMessage(

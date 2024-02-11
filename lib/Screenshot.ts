@@ -1,4 +1,4 @@
-import puppeteer from "puppeteer";
+import puppeteer, {Page} from "puppeteer";
 import * as fs from "fs";
 
 class Screenshot {
@@ -35,14 +35,12 @@ class Screenshot {
             const page = await browser.newPage();
             await page.goto(`https://www.gismeteo.com/weather-${cityName}-${cityId}/now/`);
             await page.setViewport({width: 1080, height: 1024});
-            try {
-                if (isDev) {
-                    await page.waitForSelector('.fc-button.fc-cta-consent.fc-primary-button', {timeout: 10000});
-                    await page.click('.fc-button.fc-cta-consent.fc-primary-button');
-                }
-            } catch (error) {
-                console.error("Произошла ошибка:", error);
+
+            const isModalExist = await this.isElementExist(page, "'.fc-button.fc-cta-consent.fc-primary-button'")
+            if (isModalExist) {
+                await page.click('.fc-button.fc-cta-consent.fc-primary-button');
             }
+
             const column1El = await page.$(targetClass);
             if (column1El) {
                 result = true
@@ -65,13 +63,9 @@ class Screenshot {
         try {
             const page = await browser.newPage();
             await page.goto(`https://www.gismeteo.com/weather-${cityName}-${cityId}/3-days`);
-            try {
-                if (isDev) {
-                    await page.waitForSelector('.fc-button.fc-cta-consent.fc-primary-button', {timeout: 10000});
-                    await page.click('.fc-button.fc-cta-consent.fc-primary-button');
-                }
-            } catch (error) {
-                console.error("Произошла ошибка:", error);
+            const isModalExist = await this.isElementExist(page, "'.fc-button.fc-cta-consent.fc-primary-button'")
+            if (isModalExist) {
+                await page.click('.fc-button.fc-cta-consent.fc-primary-button');
             }
             await page.setViewport({width: 1080, height: 1024});
             await page.waitForSelector(targetClass);
@@ -97,13 +91,9 @@ class Screenshot {
             await page.goto(`https://www.gismeteo.com/weather-${cityName}-${cityId}/10-days/`);
             await page.setViewport({width: 1080, height: 1024});
             await page.waitForSelector('.widget-body');
-            try {
-                if (isDev) {
-                    await page.waitForSelector('.fc-button.fc-cta-consent.fc-primary-button', {timeout: 10000});
-                    await page.click('.fc-button.fc-cta-consent.fc-primary-button');
-                }
-            } catch (error) {
-                console.error("Произошла ошибка:", error);
+            const isModalExist = await this.isElementExist(page, "'.fc-button.fc-cta-consent.fc-primary-button'")
+            if (isModalExist) {
+                await page.click('.fc-button.fc-cta-consent.fc-primary-button');
             }
             const column1El = await page.$('.widget-body');
             if (column1El) {
@@ -118,6 +108,12 @@ class Screenshot {
         }
         await browser.close()
         return result
+    }
+
+    private isElementExist = async (page: Page, selector: string) => {
+        await page.waitForTimeout(1000)
+        const element = await page.$('selector');
+        return element ? true : false
     }
 
 }
